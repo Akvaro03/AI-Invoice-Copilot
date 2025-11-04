@@ -1,0 +1,69 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Invoice {
+  id          Int           @id @default(autoincrement())
+  number      String
+  letter      String
+  cuit        String
+  vendorName  String
+  clientId    Int?
+  client      Client?       @relation(fields: [clientId], references: [id])
+  issueDate   DateTime
+  dueDate     DateTime?
+  cae         String?
+  currency    String        @default("ARS")
+  netAmount   Decimal       @default(0)
+  vatAmount   Decimal       @default(0)
+  totalAmount Decimal
+  status      String        @default("pending")
+  // otIds     Int[]        // ❌ eliminar
+  items       InvoiceItem[]
+  files       InvoiceFile[]
+  ots         OT[] // ✅ relación M:N
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model OT {
+  id       Int       @id @default(autoincrement())
+  code     String
+  invoices Invoice[]
+}
+
+model InvoiceItem {
+  id          Int     @id @default(autoincrement())
+  invoiceId   Int
+  invoice     Invoice @relation(fields: [invoiceId], references: [id])
+  description String
+  quantity    Decimal @default(1)
+  unitPrice   Decimal @default(0)
+  vatRate     Decimal @default(0)
+  total       Decimal @default(0)
+}
+
+model InvoiceFile {
+  id        Int     @id @default(autoincrement())
+  invoiceId Int
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+  path      String
+  mimeType  String
+  source    String
+}
+
+model Client {
+  id       Int       @id @default(autoincrement())
+  name     String
+  cuit     String    @unique
+  email    String?
+  invoices Invoice[] // ✅ campo opuesto de la relación con Invoice
+}
