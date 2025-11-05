@@ -1,7 +1,8 @@
-async function UploadFile(files: File[]) {
+async function sendQuestion(question: string, path: string) {
   const form = new FormData();
-  files.forEach((f) => form.append("files", f)); // clave 'files' repetida
-  const res = await fetch("/api/invoices/uploadFile", {
+  form.append("question", question);
+  form.append("path", path);
+  const res = await fetch("/api/invoices/makeQuestion", {
     method: "POST",
     body: form,
   });
@@ -14,4 +15,4 @@ async function UploadFile(files: File[]) {
   return res.json(); // { ok, count, files: [...] }
 }
 
-export default UploadFile;
+export default sendQuestion;

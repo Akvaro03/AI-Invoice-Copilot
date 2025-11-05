@@ -13,7 +13,6 @@ async function RetrievalPdf(path: string, name: string) {
   const splits = await splitter.splitDocuments(docs);
 
   // 4) LIMPIAR metadata (solo primitivos)
-  const docId = `doc:${Date.now()}:${name}`;
   const safeSplits: DocumentInterface[] = splits.map((d, i) => {
     const meta = d.metadata as PdfLoaderMeta;
     const page = getPageNumber(meta, i + 1);
@@ -31,6 +30,7 @@ async function RetrievalPdf(path: string, name: string) {
       metadata, // <- ya sin objetos anidados
     };
   });
+  const docId = safeSplits[0]?.metadata?.docId as string;
 
   return safeSplits;
 }
